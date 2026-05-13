@@ -9,9 +9,7 @@ body { font-family: -apple-system, 'Helvetica Neue', sans-serif; width: 300px; b
 .icon-btn:hover { background: rgba(255,255,255,0.35); }
 
 .body { padding: 14px; background: #fff; border-bottom: 1px solid #e2ddd6; }
-
 .warn-box { background: #FAEEDA; color: #633806; font-size: 11px; padding: 7px 10px; border-radius: 6px; margin-bottom: 10px; border: 1px solid #FAC775; }
-
 .label { display: block; font-size: 10px; font-weight: 700; color: #6b6760; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.3px; }
 
 input[type="text"], input[type="password"] {
@@ -38,15 +36,71 @@ button:disabled { background: #aaa; cursor: default; }
 
 .security-note { font-size: 10px; color: #a09c97; margin-top: 12px; line-height: 1.5; background: #f5f3ef; padding: 8px 10px; border-radius: 6px; }
 
+/* ---- 履歴エリア ---- */
 .history-wrap { padding: 10px 14px 14px; }
-.section-label { font-size: 10px; font-weight: 700; color: #6b6760; margin-bottom: 7px; text-transform: uppercase; letter-spacing: 0.3px; }
-.empty { font-size: 11px; color: #a09c97; text-align: center; padding: 10px 0; }
 
-.history-item {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 7px 9px; border-radius: 6px; margin-bottom: 4px;
-  background: #fff; border: 1px solid #e2ddd6; cursor: pointer; transition: all 0.1s;
+.history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.section-label { font-size: 10px; font-weight: 700; color: #6b6760; text-transform: uppercase; letter-spacing: 0.3px; }
+.clear-all-btn {
+  width: auto; margin: 0; padding: 3px 10px;
+  background: none; border: 1px solid #ccc8c0;
+  color: #A32D2D; font-size: 10px; font-weight: 600;
+  border-radius: 5px; cursor: pointer;
 }
-.history-item:hover { background: #eaf3fb; border-color: #B5D4F4; }
-.h-kw { font-size: 13px; font-weight: 700; font-family: monospace; color: #185FA5; }
-.h-meta { font-size: 10px; color: #a09c97; text-align: right; line-height: 1.4; }
+.clear-all-btn:hover { background: #FCEBEB; border-color: #F09595; }
+
+/* カルーセル */
+.carousel-outer {
+  display: flex; align-items: center; gap: 4px;
+}
+.carousel-viewport {
+  flex: 1; overflow: hidden; border-radius: 8px;
+}
+.carousel-track {
+  display: flex; transition: transform 0.25s ease;
+}
+.carousel-arrow {
+  width: 24px; height: 24px; flex-shrink: 0;
+  background: #e2ddd6; border: none; border-radius: 50%;
+  font-size: 16px; color: #6b6760; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0; margin: 0; line-height: 1;
+  transition: background 0.15s;
+}
+.carousel-arrow:hover { background: #ccc8c0; }
+.carousel-arrow:disabled { opacity: 0.3; cursor: default; }
+
+/* カード1枚 */
+.history-card {
+  min-width: 100%; /* viewport幅に合わせる */
+  background: #fff; border: 1px solid #e2ddd6; border-radius: 8px;
+  padding: 10px 12px;
+  display: flex; align-items: center; gap: 8px;
+  cursor: pointer;
+}
+.history-card:hover { background: #eaf3fb; border-color: #B5D4F4; }
+.h-kw { font-size: 15px; font-weight: 700; font-family: monospace; color: #185FA5; flex: 1; }
+.h-meta { font-size: 10px; color: #a09c97; text-align: right; line-height: 1.6; flex-shrink: 0; }
+.h-del {
+  width: 22px; height: 22px; flex-shrink: 0;
+  background: #FCEBEB; border: 1px solid #F09595;
+  color: #A32D2D; border-radius: 50%;
+  font-size: 12px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0; margin: 0; font-weight: 700;
+  transition: background 0.15s;
+}
+.h-del:hover { background: #f5c5c5; }
+
+/* ドット */
+.carousel-dots {
+  display: flex; justify-content: center; gap: 5px; margin-top: 7px;
+}
+.dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #ccc8c0; cursor: pointer; transition: background 0.15s;
+  border: none; padding: 0; margin: 0; flex-shrink: 0;
+}
+.dot.active { background: #185FA5; }
+
+.empty { font-size: 11px; color: #a09c97; text-align: center; padding: 10px 0; }

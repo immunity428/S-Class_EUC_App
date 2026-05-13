@@ -15,14 +15,13 @@ document.addEventListener('DOMContentLoaded', function() {
     loadHistory();
   };
 
-  // 初期化
   checkCreds();
   loadHistory();
 
   // --- メイン ---
-  var kwInput  = document.getElementById('keyword');
+  var kwInput   = document.getElementById('keyword');
   var submitBtn = document.getElementById('submit-btn');
-  var mainMsg  = document.getElementById('main-msg');
+  var mainMsg   = document.getElementById('main-msg');
 
   kwInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') doSubmit(); });
   submitBtn.addEventListener('click', doSubmit);
@@ -42,29 +41,128 @@ document.addEventListener('DOMContentLoaded', function() {
   function checkCreds() {
     chrome.storage.local.get('eucCredentials', function(r) {
       var c = r.eucCredentials || {};
-      var warn = document.getElementById('login-warn');
-      if (!c.userId || !c.password) {
-        warn.style.display = 'block';
-      } else {
-        warn.style.display = 'none';
-      }
+      document.getElementById('login-warn').style.display =
+        (!c.userId || !c.password) ? 'block' : 'none';
     });
   }
 
+  // --- カルーセル ---
+  var currentIndex = 0;
+  var historyData  = [];
+
   function loadHistory() {
     chrome.storage.local.get('eucHistory', function(r) {
-      var list = document.getElementById('history-list');
-      var h = r.eucHistory || [];
-      if (!h.length) { list.innerHTML = '<div class="empty">まだ登録履歴がありません</div>'; return; }
-      list.innerHTML = h.slice(0, 5).map(function(item) {
-        var kw = item.keyword.replace(/'/g, "\\'");
-        return '<div class="history-item" onclick="document.getElementById(\'keyword\').value=\'' + kw + '\';document.getElementById(\'keyword\').focus()">' +
-          '<span class="h-kw">' + item.keyword + '</span>' +
-          '<span class="h-meta">' + item.date + '<br>' + item.time + '</span>' +
-          '</div>';
-      }).join('');
+      historyData = r.eucHistory || [];
+      currentIndex = 0;
+      renderCarousel();
     });
   }
+
+  function renderCarousel() {
+    var track    = document.getElementById('carousel-track');
+    var dots     = document.getElementById('carousel-dots');
+    var empty    = document.getElementById('history-empty');
+    var viewport = document.getElementById('carousel-viewport');
+    var leftBtn  = document.getElementById('arrow-left');
+    var rightBtn = document.getElementById('arrow-right');
+
+    if (!historyData.length) {
+      track.innerHTML = '';
+      dots.innerHTML  = '';
+      empty.style.display  = 'block';
+      document.querySelector('.carousel-outer').style.display = 'none';
+      dots.style.display   = 'none';
+      return;
+    }
+
+    empty.style.display  = 'none';
+    document.querySelector('.carousel-outer').style.display = 'flex';
+    dots.style.display   = 'flex';
+
+    // カード生成
+    track.innerHTML = historyData.map(function(h, i) {
+      return '<div class="history-card" data-index="' + i + '">' +
+        '<div class="h-kw">' + h.keyword + '</div>' +
+        '<div class="h-meta">' + h.date + '<br>' + h.time + '</div>' +
+        '<button class="h-del" data-index="' + i + '" title="削除">✕</button>' +
+        '</div>';
+    }).join('');
+
+    // ドット生成
+    dots.innerHTML = historyData.map(function(_, i) {
+      return '<button class="dot' + (i === currentIndex ? ' active' : '') + '" data-index="' + i + '"></button>';
+    }).join('');
+
+    // カードクリック → キーワード入力
+    track.querySelectorAll('.history-card').forEach(function(card) {
+      card.addEventListener('click', function(e) {
+        if (e.target.classList.contains('h-del')) return;
+        var kw = historyData[parseInt(card.dataset.index)].keyword;
+        document.getElementById('keyword').value = kw;
+        document.getElementById('keyword').focus();
+      });
+    });
+
+    // 削除ボタン
+    track.querySelectorAll('.h-del').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var idx = parseInt(btn.dataset.index);
+        historyData.splice(idx, 1);
+        if (currentIndex >= historyData.length) currentIndex = Math.max(0, historyData.length - 1);
+        chrome.storage.local.set({ eucHistory: historyData }, renderCarousel);
+      });
+    });
+
+    // ドットクリック
+    dots.querySelectorAll('.dot').forEach(function(dot) {
+      dot.addEventListener('click', function() {
+        currentIndex = parseInt(dot.dataset.index);
+        updatePosition();
+      });
+    });
+
+    // 矢印
+    leftBtn.disabled  = currentIndex === 0;
+    rightBtn.disabled = currentIndex === historyData.length - 1;
+
+    updatePosition();
+  }
+
+  function updatePosition() {
+    var track    = document.getElementById('carousel-track');
+    var dots     = document.getElementById('carousel-dots');
+    var leftBtn  = document.getElementById('arrow-left');
+    var rightBtn = document.getElementById('arrow-right');
+
+    // viewport幅を取得してスライド
+    var viewport = document.getElementById('carousel-viewport');
+    var w = viewport.offsetWidth || 220;
+    track.style.transform = 'translateX(-' + (currentIndex * w) + 'px)';
+
+    leftBtn.disabled  = currentIndex === 0;
+    rightBtn.disabled = currentIndex === historyData.length - 1;
+
+    dots.querySelectorAll('.dot').forEach(function(dot, i) {
+      dot.classList.toggle('active', i === currentIndex);
+    });
+  }
+
+  document.getElementById('arrow-left').addEventListener('click', function() {
+    if (currentIndex > 0) { currentIndex--; updatePosition(); }
+  });
+  document.getElementById('arrow-right').addEventListener('click', function() {
+    if (currentIndex < historyData.length - 1) { currentIndex++; updatePosition(); }
+  });
+
+  // 全削除
+  document.getElementById('clear-all-btn').addEventListener('click', function() {
+    if (!historyData.length) return;
+    if (!confirm('登録履歴をすべて削除しますか？')) return;
+    historyData = [];
+    currentIndex = 0;
+    chrome.storage.local.set({ eucHistory: [] }, renderCarousel);
+  });
 
   // --- 設定 ---
   document.getElementById('toggle-pass').onclick = function() {
