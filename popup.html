@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>EUC出席登録</title>
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+<!-- メイン画面 -->
+<div id="screen-main">
+  <div class="header">
+    <span class="icon">📋</span>
+    <div class="header-text">
+      <div class="title">EUC 出席登録</div>
+    </div>
+    <button class="icon-btn" id="goto-settings" title="設定">⚙️</button>
+  </div>
+
+  <div class="body">
+    <div id="login-warn" class="warn-box" style="display:none">
+      ⚠ ログイン情報が未設定です。⚙️から設定してください。
+    </div>
+    <label class="label">キーワード</label>
+    <input type="text" id="keyword" placeholder="教員から指示されたキーワード" autocomplete="off" autofocus>
+    <button id="submit-btn">出席登録する →</button>
+    <div id="main-msg"></div>
+  </div>
+
+  <div class="history-wrap">
+    <div class="section-label">登録履歴</div>
+    <div id="history-list"><div class="empty">まだ登録履歴がありません</div></div>
+  </div>
+</div>
+
+<!-- 設定画面 -->
+<div id="screen-settings" style="display:none">
+  <div class="header">
+    <button class="icon-btn" id="goto-main">←</button>
+    <div class="header-text">
+      <div class="title">ログイン情報</div>
+    </div>
+  </div>
+
+  <div class="body">
+    <label class="label">学籍番号（User ID）</label>
+    <input type="text" id="userId" placeholder="例: 23xxxxxxx" autocomplete="username">
+
+    <label class="label" style="margin-top:12px">パスワード</label>
+    <div style="position:relative">
+      <input type="password" id="password" placeholder="パスワード" autocomplete="current-password" style="padding-right:40px">
+      <button id="toggle-pass" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:14px;width:auto;margin:0;padding:2px 6px">👁</button>
+    </div>
+
+    <button id="save-btn" style="margin-top:12px">保存する</button>
+    <button id="clear-btn" class="btn-sub">ログイン情報を削除</button>
+    <div id="settings-msg"></div>
+
+    <div class="security-note">🔒 パスワードはこの端末のChromeにのみ保存。外部送信は一切しません。</div>
+  </div>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
